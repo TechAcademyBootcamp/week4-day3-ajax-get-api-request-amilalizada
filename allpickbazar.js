@@ -1,38 +1,75 @@
-// let category_svg = ` <svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" viewBox="0 0 18 18">
-//                         <g fill="currentColor">
-//                             <path data-name="Path 36"
-//                                 d="M2.109 5.274H12.66a1.055 1.055 0 000-2.11h-.1a1.67 1.67 0 00-1.5-1.054 2.626 2.626 0 00-1.854-1.044 2.1 2.1 0 00-3.653 0 2.626 2.626 0 00-1.85 1.045h-.011a1.577 1.577 0 00-1.481 1.055h-.1a1.055 1.055 0 100 2.11z">
-//                             </path>
-//                             <path data-name="Path 37" d="M7.956 15.891l.863-9.562H5.946l.862 9.562z"></path>
-//                             <path data-name="Path 38"
-//                                 d="M2.884 12.881a2.118 2.118 0 011.253 1.378 2.626 2.626 0 011.07 1.633h.542L4.887 6.33H2.164z">
-//                             </path>
-//                             <path data-name="Path 39" d="M12.601 6.329H9.877l-.862 9.562h2.059a.527.527 0 00.524-.469z">
-//                             </path>
-//                             <path data-name="Path 40"
-//                                 d="M1.054 16.946a.876.876 0 00.091-.019 1.577 1.577 0 102-2c0-.031.019-.058.019-.091a1.055 1.055 0 00-2.11 0 1.055 1.055 0 100 2.109z">
-//                             </path>
-//                         </g>
-//                     </svg>`
 $(document).ready(function() {
 
+    let category_svg = ` <svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" viewBox="0 0 18 18">
+                        <g fill="currentColor">
+                            <path data-name="Path 36"
+                                d="M2.109 5.274H12.66a1.055 1.055 0 000-2.11h-.1a1.67 1.67 0 00-1.5-1.054 2.626 2.626 0 00-1.854-1.044 2.1 2.1 0 00-3.653 0 2.626 2.626 0 00-1.85 1.045h-.011a1.577 1.577 0 00-1.481 1.055h-.1a1.055 1.055 0 100 2.11z">
+                            </path>
+                            <path data-name="Path 37" d="M7.956 15.891l.863-9.562H5.946l.862 9.562z"></path>
+                            <path data-name="Path 38"
+                                d="M2.884 12.881a2.118 2.118 0 011.253 1.378 2.626 2.626 0 011.07 1.633h.542L4.887 6.33H2.164z">
+                            </path>
+                            <path data-name="Path 39" d="M12.601 6.329H9.877l-.862 9.562h2.059a.527.527 0 00.524-.469z">
+                            </path>
+                            <path data-name="Path 40"
+                                d="M1.054 16.946a.876.876 0 00.091-.019 1.577 1.577 0 102-2c0-.031.019-.058.019-.091a1.055 1.055 0 00-2.11 0 1.055 1.055 0 100 2.109z">
+                            </path>
+                        </g>
+                    </svg>`
+
+
     $.ajax({
+        url: 'http://35.225.243.133/api/categories/',
+        method: 'GET',
+        success: function(response) {
+            console.log(response);
+            for (let categories of response) {
 
-        url: 'http://35.225.243.133/api/products/',
-        method: "GET",
-        succes: function(response) {
-            console.log('fsvs')
-            for (let product of response) {
+                let kindsCatg = $(`<div class="kinds"><div>`);
+                let kindsSvg = $(`<svg>${category_svg}</svg>`);
+                let kindsSpan = $(`<span>${categories.title}</span>`);
+                kindsCatg.append(kindsSvg);
+                kindsCatg.append(kindsSpan);
+                $('.leftprdcts').append(kindsCatg);
+                $(kindsCatg).click(function() {
+                    sameId(categories.id);
+                    $('.forsale').empty();
 
-                $('.forsale').append(`<div class=" col-lg-3 col-md-4 col-sm-6 col-12 mb-4 ">
-                <div class="card h-100">
-                    <img src="${product.main-image}" alt="...">
+                })
+            }
+
+
+        },
+        error: function(error_response) {
+            alert('error')
+        }
+    })
+
+
+    function sameId(id) {
+        var requestUrl;
+        if (typeof id == 'undefined') {
+            requestUrl = `http://35.225.243.133/api/products/`
+        } else {
+            requestUrl = `http://35.225.243.133/api/products/?category=${id}`
+        }
+        $.ajax({
+
+            url: requestUrl,
+            method: "GET",
+            success: function(response) {
+
+                for (let product of response) {
+
+                    $('.forsale').append(`<div class=" col-lg-3 col-md-4 col-sm-6 col-12 mb-4 h-100 w-100">
+                <div class="card ">
+                    <img class="w-100 h-100" src="${product.main_image}" alt="...">
                     <div class="card-body ">
                         <h5 class="card-title">${product.title}</h5>
 
-                        <span class="cartcenter ">${product.unit}</span>
+                        <span class="cartcenter ">${product.amount_by_unit}${product.unit}</span>
                         <div class="cartdown">
-                            <span class="card-price">${product.amount_by_unit}</span>
+                            <span class="card-price">${product.price}</span>
                             <div class="downright add_cart ">
                                 <span>
                                     <svg xmlns="http://www.w3.org/2000/svg " width="14.4 " height="12 "
@@ -51,14 +88,19 @@ $(document).ready(function() {
                     </div>
                 </div>
             </div>`)
-            }
-        },
-        error: function(error_response) {
-            alert('error');
-            console.log(error_response)
-        }
+                }
+            },
+            error: function(error_response) {
+                alert('error');
 
-    })
+            }
+
+        });
+    }
+
+
+
+    sameId();
 })
 
 
@@ -120,25 +162,25 @@ $(document).ready(function() {
 
 
 //             document.getElementById('card-products').innerHTML += `<div class="card" products-title="${card_title}">
-//                 <div class="row no-gutters">
-//                     <div class="col-md-4">
-//                         <img src="${card_image}"class="card-img" alt="..." >                
+//         <div class="row no-gutters">
+//             <div class="col-md-4">
+//                 <img src="${card_image}"class="card-img" alt="..." >                
+//             </div>
+//             <div class="col-md-8">
+//                 <div class="card-body row">
+//                     <div>
+//                         <h5 class="card-title jstitle">${card_title}</h5>
+//                         <p class="card-text jsprice">${card_price}</p>
+//                         <p class="card-text jspcs"><span class="count">${counter}</span>X ${card_pcs}</p>
 //                     </div>
-//                     <div class="col-md-8">
-//                         <div class="card-body row">
-//                             <div>
-//                                 <h5 class="card-title jstitle">${card_title}</h5>
-//                                 <p class="card-text jsprice">${card_price}</p>
-//                                 <p class="card-text jspcs"><span class="count">${counter}</span>X ${card_pcs}</p>
-//                             </div>
-//                             <div class="fortotal row">
-//                                 <span>$</span>
-//                                 <span class="card-total">${card_price}</span>
-//                             </div>
-//                         </div>
+//                     <div class="fortotal row">
+//                         <span>$</span>
+//                         <span class="card-total">${card_price}</span>
 //                     </div>
 //                 </div>
-//             </div>`
+//             </div>
+//         </div>
+//     </div>`
 //             var array_total = document.getElementById('card-products').querySelectorAll('.card-total');
 //             var first_sum = 0;
 //             for (var i = 0; i < array_total.length; i++) {
@@ -159,33 +201,34 @@ $(document).ready(function() {
 
 //             }
 
-//             // let cardProducts = document.getElementById('card-products');
-//             // let firstDiv = document.createElement('div');
-//             // firstDiv.classList.add('card');
-//             // firstDiv.setAttribute('products-title');
-//             // cardProducts.appendChild(firstDiv);
+// let cardProducts = document.getElementById('card-products');
+// let firstDiv = document.createElement('div');
+// firstDiv.classList.add('card');
+// firstDiv.setAttribute('products-title');
+// cardProducts.appendChild(firstDiv);
 
-//             // let
-
-
-
-
-//             // let js_card = document.createElement('div');
-
-//             // let js = document.createElement('img');
-//             // jsImgCard.setAttribute('src');
-//             // jsImgCard.classList.add('card-img');
-//             // jsImgCard.classList.add('alt');
-//             // console.log(cardProducts);
+// let
 
 
 
 
+// let js_card = document.createElement('div');
+
+// let js = document.createElement('img');
+// jsImgCard.setAttribute('src');
+// jsImgCard.classList.add('card-img');
+// jsImgCard.classList.add('alt');
+// console.log(cardProducts);
 
 
-//         } else {
-//             document.getElementsByClassName('btn-primary')[0].click();
-//         }
-//     });
+
+
+
+
+// }
+// else {
+//     document.getElementsByClassName('btn-primary')[0].click();
+// }
+// });
 
 // }
